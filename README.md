@@ -1,157 +1,149 @@
-# 💬 C++ Multi-Client Chat Server
+# C++ TCP Multi-Client Chat Application
 
-A real-time multi-client chat application built using **C++ sockets**, designed to work reliably over LAN with proper handling of TCP stream behavior.
+A terminal-based multi-client chat application built using **C++ and TCP socket programming**. The application follows a client-server architecture where multiple clients can connect to a central server and communicate in real time.
 
----
+## Features
 
-## 🚀 Features
+- TCP-based client-server communication
+- Multiple clients can connect simultaneously
+- Username-based messaging
+- Broadcast messages between connected clients
+- `/users` command to view currently connected users
+- Multithreaded client handling
+- Thread-safe client management using mutexes
+- Graceful client connection and disconnection handling
 
-* 🔹 Multi-client support (thread per client)
-* 🔹 Real-time message broadcasting
-* 🔹 Username-based messaging
-* 🔹 Works across devices (LAN: phone ↔ laptop)
-* 🔹 Proper TCP stream handling (no message corruption)
-* 🔹 Thread-safe client management using mutex
+## Tech Stack
 
----
+- C++
+- TCP/IP
+- Winsock2
+- STL
+- `std::thread`
+- `std::mutex`
 
-## 🧠 Key Learning
+## Architecture
 
-This project focuses on understanding how **TCP actually works** beyond localhost testing.
+```text
+                 TCP Connection
+                       |
+                       v
+                +-------------+
+                |   SERVER    |
+                |   Port 8080 |
+                +------+------+
+                       |
+              +--------+--------+
+              |        |        |
+              v        v        v
+           Client   Client   Client
+    he server listens for incoming TCP connections. Each connected client is handled by a separate thread. Messages received from a client are broadcast to the other connected clients.
 
-### Important concepts implemented:
+Project Structure
+cpp-tcp-chat/
+│
+├── client.cpp
+├── server.cpp
+├── README.md
+├── LICENSE
+└── .gitignore
+Requirements
+Windows
+MinGW-w64 / GCC
+VS Code
+How to Run
+1. Clone the repository
+git clone https://github.com/ishitasalgotra/cpp-tcp-chat.git
+cd cpp-tcp-chat
+2. Compile the server
+g++ server.cpp -o chatserver.exe -lws2_32
+3. Compile the client
+g++ client.cpp -o client.exe -lws2_32
+4. Start the server
+.\chatserver.exe
 
-* Handling **partial reads** from `recv()`
-* Using **delimiter-based protocol (****`\n`****)** for message boundaries
-* Avoiding reliance on null-terminated strings
-* Buffer accumulation and parsing
-* Synchronizing shared resources using `mutex`
-* Debugging real-world networking issues (LAN vs localhost)
+The server runs on port 8080.
 
----
+5. Start a client
 
-## ⚠️ Problem Faced
+Open a new terminal:
 
-Initially, the chat system worked perfectly on `localhost`, but failed over LAN.
+.\client.exe
 
-### Issues encountered:
+Enter a username when prompted.
 
-* Messages getting split or merged
-* Corrupted output (`ined the chat!`)
-* Connection refused errors
-* Inconsistent behavior across devices
+To test multiple clients, open additional terminals and run:
 
-### Root cause:
+.\client.exe
 
-> TCP is a **stream protocol**, not message-based.
+again.
 
----
+Chat Commands
+View Online Users
 
-## ✅ Solution
+Inside a connected client, type:
 
-Implemented a proper message handling strategy:
+/users
 
-* Accumulate incoming data into a buffer
-* Extract complete messages using `\n`
-* Process only complete messages
-* Preserve leftover data for next read
+Example:
 
-This ensures correct behavior even when:
+Online users:
+- ishita
+- rahul
+Example
+Server is running on port 8080...
 
-* Messages arrive in chunks
-* Multiple messages arrive together
+Connected to server
+Enter your username: ishita
 
----
+rahul has joined the chat!
 
-## 🏗️ Project Structure
+ishita: Hello Rahul!
+rahul: Hey Ishita!
+Key Concepts
+TCP Socket Programming
 
-```
-.
-├── server.cpp   # Multi-client threaded server
-├── client.cpp   # Chat client with send/receive threads
-```
+The application uses TCP sockets to establish reliable communication between clients and the server.
 
----
+Client-Server Architecture
 
-## 🛠️ How to Run
+The server listens on port 8080 and accepts incoming client connections. Clients connect to the server using the local loopback address.
 
-### 1. Compile
+Multithreading
 
-```bash
-g++ server.cpp -o server -pthread
-g++ client.cpp -o client -pthread
-```
+A separate std::thread is created for each connected client, allowing multiple clients to communicate concurrently.
 
----
+Mutex Synchronization
 
-### 2. Run Server
+A std::mutex protects the shared client collection from simultaneous access by multiple client threads.
 
-```bash
-./server
-```
+STL
 
----
+The project uses C++ STL containers such as std::map to maintain connected clients and their usernames.
 
-### 3. Run Client
+Learning Outcomes
 
-```bash
-./client
-```
+This project demonstrates practical understanding of:
 
----
+TCP/IP networking
+Socket programming
+Client-server architecture
+Multithreading
+Mutex-based synchronization
+Concurrent programming
+STL containers
+Network I/O
+Basic message framing
+Future Improvements
 
-## 🌐 LAN Usage (Phone ↔ Laptop)
+Possible future improvements include:
 
-1. Connect both devices to the same WiFi
-2. Find your laptop IP:
+Private messaging
+Message timestamps
+Chat history
+User authentication
+End-to-end encryption
+Graphical user interface
+License
 
-```bash
-ipconfig   # Windows
-ifconfig   # Linux
-```
-
-3. Update client code:
-
-```cpp
-inet_pton(AF_INET, "YOUR_IP_HERE", &serverAddr.sin_addr);
-```
-
----
-
-## 🔐 Future Improvements
-
-* [ ] Private messaging (`@username`)
-* [ ] Chat rooms / channels
-* [ ] End-to-end encryption
-* [ ] Message persistence
-* [ ] Non-blocking sockets (epoll/select)
-
----
-
-## 📌 Tech Stack
-
-* C++
-* POSIX Sockets
-* Multithreading (`std::thread`)
-* Mutex synchronization
-
----
-
-## 💡 What This Project Shows
-
-* Understanding of low-level networking
-* Ability to debug real-world system issues
-* Strong grasp of TCP behavior
-* Clean multi-threaded design
-
----
-
-## 🤝 Contributions
-
-Open to improvements and suggestions!
-
----
-
-## 📜 License
-
-This project is licensed under the GNU General Public License v3.0 (GPLv3).
+This project is licensed under the MIT License.
